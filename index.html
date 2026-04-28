@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSV — Market Comparison</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f4f5f7;--surface:#fff;--s2:#f8f9fb;--border:#e2e4e9;--text:#1a1d23;--t2:#6b7280;--t3:#9ca3af;--blue:#185FA5;--blue2:#378ADD;--bl:#E6F1FB;--green:#3B6D11;--gl:#EAF3DE;--amber:#BA7517;--al:#FAEEDA;--red:#A32D2D;--rl:#FCEBEB;--purple:#534AB7;--pl:#EEEDFE;--r:10px;--r2:14px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);font-size:13px}
+.hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:20;flex-wrap:wrap}
+.logo{font-size:22px;font-weight:900;color:var(--blue);letter-spacing:-.8px}.sub{color:var(--t2);font-size:12px}.hleft{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.badge{background:var(--bl);color:var(--blue);font-size:11px;font-weight:800;padding:4px 10px;border-radius:99px}.hright{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.btn{border:1px solid var(--border);background:var(--surface);padding:7px 11px;border-radius:var(--r);font-size:12px;font-weight:700;color:var(--t2);cursor:pointer}.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn:hover{filter:brightness(.96)}
+.main{max-width:1600px;margin:0 auto;padding:18px 24px}.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:12px;margin-bottom:14px}.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px}.title{font-size:15px;font-weight:800;margin-bottom:4px}.muted{color:var(--t2);font-size:12px;line-height:1.5}.status{font-size:11px;color:var(--t3);margin-top:8px;line-height:1.7}.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.fg{display:flex;flex-direction:column;gap:3px}.fl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);font-weight:800}select{border:1px solid var(--border);background:#fff;border-radius:var(--r);padding:7px 10px;font-size:12px;color:var(--text);min-width:130px}.kgrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:14px}.kpi{background:#fff;border:1px solid var(--border);border-radius:var(--r2);padding:13px 14px;position:relative;overflow:hidden}.kpi:before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--blue2)}.kpi.green:before{background:#639922}.kpi.amber:before{background:#EF9F27}.kpi.purple:before{background:#7F77DD}.kl{font-size:11px;color:var(--t2);margin-bottom:5px}.kv{font-size:20px;font-weight:900;color:var(--blue)}.ks{font-size:11px;color:var(--t3);margin-top:2px}.section{background:#fff;border:1px solid var(--border);border-radius:var(--r2);margin-bottom:14px;overflow:hidden}.sh{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}.st{font-size:15px;font-weight:900}.chip{font-size:10px;font-weight:900;padding:3px 8px;border-radius:99px;background:var(--bl);color:var(--blue);display:inline-block;margin-left:6px}.chip.air{background:var(--gl);color:var(--green)}.chip.exp{background:var(--al);color:var(--amber)}.table-wrap{overflow-x:auto}.tbl{width:100%;border-collapse:collapse;min-width:1320px}.tbl th{background:var(--s2);border-bottom:1px solid var(--border);border-right:1px solid var(--border);padding:8px 7px;text-align:center;font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}.tbl td{border-bottom:1px solid var(--border);border-right:1px solid var(--border);padding:8px 7px;text-align:right;white-space:nowrap}.tbl td:first-child,.tbl th:first-child{text-align:left;position:sticky;left:0;background:#fff;z-index:1;min-width:190px;font-weight:800}.tbl th:first-child{background:var(--s2);z-index:2}.rowgrp{background:#fbfcfe!important;color:var(--blue);font-weight:900}.metric{color:var(--t2);font-weight:700}.growth.up{color:var(--green);font-weight:900}.growth.down{color:var(--red);font-weight:900}.growth.neu{color:var(--t3);font-weight:700}.ytd{background:#fffaf0;font-weight:900}.note{background:var(--bl);border:1px solid #cfe4f7;color:#0C447C;border-radius:var(--r);padding:10px 12px;font-size:12px;line-height:1.6}.warn{background:var(--al);border-color:#f3d9a7;color:#7d4e00}.mini{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}.mini div{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:10px}.mini b{display:block;font-size:17px;color:var(--blue);margin-top:3px}.drop{border:2px dashed var(--border);border-radius:var(--r2);padding:18px;text-align:center;color:var(--t2);cursor:pointer;background:#fff}.drop.over{border-color:var(--blue2);background:var(--bl)}#manualInput{display:none}.foot{color:var(--t3);font-size:11px;line-height:1.6;margin-top:10px}@media(max-width:1100px){.hero{grid-template-columns:1fr}.kgrid{grid-template-columns:repeat(3,1fr)}.mini{grid-template-columns:repeat(2,1fr)}}@media(max-width:700px){.main{padding:12px}.kgrid{grid-template-columns:repeat(2,1fr)}.hdr{padding:10px 12px}.tbl{min-width:1100px}}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hleft"><div class="logo">DSV</div><div><strong>Market Comparison</strong><div class="sub">Mercado x DSV + Schenker — leitura mensal automática</div></div><span class="badge" id="statusBadge">Carregando bases</span></div>
+  <div class="hright"><button class="btn" onclick="document.getElementById('manualInput').click()">+ Upload manual</button><button class="btn primary" onclick="loadAll(true)">↻ Recarregar</button><input type="file" id="manualInput" accept=".xlsx,.xls" multiple></div>
+</header>
+<main class="main">
+  <div class="hero">
+    <div class="card"><div class="title">Comparativo mensal por produto</div><div class="muted">O painel procura automaticamente os arquivos em <b>data/</b> com o padrão <b>sea_import_2026_03.xlsx</b>, <b>air_export_2025_04.xlsx</b>, etc. Ele compara 2025 x 2026 mês a mês e calcula o YTD apenas com os meses carregados.</div><div class="status" id="loadStatus">Iniciando leitura...</div></div>
+    <div class="card"><div class="title">Regras de cálculo</div><div class="muted">DSV considera nomes com <b>DSV</b>, <b>SCHENKER</b>, <b>DB SCHENKER</b> ou <b>D B SCHENKER</b>. FCL soma <b>TEU</b>, LCL soma <b>CBM / Volumes</b>, Air soma <b>KG</b>. Air Export fica somente com KG, sem shipments.</div><div class="mini"><div>Arquivos lidos<b id="kFiles">0</b></div><div>Linhas lidas<b id="kRows">0</b></div><div>Meses ativos<b id="kMonths">0</b></div><div>Última carga<b id="kTime">—</b></div></div></div>
+  </div>
+  <div class="filters">
+    <div class="fg"><label class="fl">Produto</label><select id="fProduct" onchange="render()"><option value="all">Todos</option><option value="sea_import">Importação Marítima</option><option value="sea_export">Exportação Marítima</option><option value="air_import">Importação Aérea</option><option value="air_export">Exportação Aérea</option></select></div>
+    <div class="fg"><label class="fl">Mês inicial</label><select id="fStart" onchange="render()"></select></div>
+    <div class="fg"><label class="fl">Mês final</label><select id="fEnd" onchange="render()"></select></div>
+    <div class="fg"><label class="fl">Visão</label><select id="fView" onchange="render()"><option value="both">Market + DSV</option><option value="market">Somente Market</option><option value="dsv">Somente DSV</option></select></div>
+    <div class="fg" style="justify-content:end"><button class="btn" onclick="resetFilters()">Limpar filtros</button></div>
+  </div>
+  <div class="kgrid" id="kpis"></div>
+  <div id="sections"></div>
+  <div class="note warn">Para atualizar no GitHub: suba o novo relatório mensal dentro da pasta <b>data</b> usando o padrão <b>produto_ano_mes.xlsx</b>. Exemplo: <b>sea_import_2026_05.xlsx</b>. Não precisa mexer no HTML.</div>
+  <div class="foot">Produtos aceitos: sea_import, sea_export, air_import, air_export. Anos aceitos nesta versão: 2025 e 2026. Meses preparados: janeiro a dezembro.</div>
+</main>
+<script>
+const YEARS=[2025,2026];
+const MONTHS=[['01','Jan'],['02','Feb'],['03','Mar'],['04','Apr'],['05','May'],['06','Jun'],['07','Jul'],['08','Aug'],['09','Sep'],['10','Oct'],['11','Nov'],['12','Dec']];
+const PRODUCTS={
+  sea_import:{label:'Importação Marítima',kind:'sea',direction:'Import',chip:'Ocean Import'},
+  sea_export:{label:'Exportação Marítima',kind:'sea',direction:'Export',chip:'Ocean Export'},
+  air_import:{label:'Importação Aérea',kind:'air',direction:'Import',chip:'Air Import'},
+  air_export:{label:'Exportação Aérea',kind:'air',direction:'Export',chip:'Air Export'}
+};
+let RAW=[], FILE_LOG=[];
+const $=id=>document.getElementById(id);
+function initFilters(){['fStart','fEnd'].forEach(id=>{const s=$(id);s.innerHTML='';MONTHS.forEach(([m,n])=>{const o=document.createElement('option');o.value=m;o.textContent=n;s.appendChild(o)});});$('fStart').value='01';$('fEnd').value='12'}
+function norm(s){return String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[\u00A0\u200B-\u200D\uFEFF]/g,' ').replace(/[^a-zA-Z0-9]+/g,'').toLowerCase()}
+function clean(s){return String(s??'').replace(/[\u00A0\u200B-\u200D\uFEFF]/g,' ').replace(/\s+/g,' ').trim()}
+function getCol(row,names){const wanted=names.map(norm);for(const k of Object.keys(row)){const nk=norm(k);if(wanted.includes(nk))return row[k]}for(const k of Object.keys(row)){const nk=norm(k);if(wanted.some(w=>nk.includes(w)||w.includes(nk)))return row[k]}return ''}
+function num(v){if(typeof v==='number')return isFinite(v)?v:0;let s=String(v??'').trim();if(!s)return 0;s=s.replace(/\s/g,'');if(s.includes(',')&&s.includes('.')){s=s.replace(/\./g,'').replace(',','.')}else if(s.includes(',')){s=s.replace(',','.')}s=s.replace(/[^0-9.-]/g,'');const n=parseFloat(s);return isFinite(n)?n:0}
+function isDSV(name){const n=norm(name);return n.includes('dsv')||n.includes('schenker')||n.includes('dbschenker')||n.includes('dbschenker')}
+function fNum(v,dec=0){if(!isFinite(v))v=0;if(Math.abs(v)>=1e9)return (v/1e9).toFixed(1)+'B';if(Math.abs(v)>=1e6)return (v/1e6).toFixed(1)+'M';if(Math.abs(v)>=1e3)return (v/1e3).toFixed(dec?1:0)+'K';return v.toLocaleString('pt-BR',{maximumFractionDigits:dec})}
+function pct(a,b){if(!b&&a)return 'NEW'; if(!b&&!a)return '—'; const p=(a-b)/Math.abs(b)*100; return (p>0?'+':'')+p.toFixed(0)+'%'}
+function gClass(a,b){if(!b&&!a)return 'neu'; if(a>b)return 'up'; if(a<b)return 'down'; return 'neu'}
+function metricName(prod,type){if(prod.kind==='sea')return type==='fcl'?'TEU':'CBM';return 'KG'}
+function rowToRecord(row,product,year,month,file){
+  const prod=PRODUCTS[product];
+  const forwarder=getCol(row,['FREIGHT FORWARDER','FORWARDER','CARGO AGENT','AGENT','CONSIGNEE','AIRLINE FORWARDER','FORWARDER NAME','COMPANY','CUSTOMER']);
+  const cargo=clean(getCol(row,['CARGO TYPE','TYPE','CONTAINER TYPE','SERVICE','MODAL','PRODUCT'])).toUpperCase();
+  const teu=num(getCol(row,['TEUS','TEU','T EU','TOTAL TEUS','QUANTITY TEUS']));
+  const cbm=num(getCol(row,['VOLUMES','VOLUME','CBM','M3','CUBIC METERS','CUBIC METER']));
+  const kg=num(getCol(row,['TOTAL WEIGHT','GROSS WEIGHT','WEIGHT','KG','KGS','CHARGEABLE WEIGHT','ACTUAL WEIGHT']));
+  let seaType='';
+  if(prod.kind==='sea'){
+    if(cargo.includes('LCL')) seaType='LCL';
+    else if(cargo.includes('FCL')) seaType='FCL';
+    else if(teu>0 && cbm===0) seaType='FCL';
+    else if(cbm>0 && teu===0) seaType='LCL';
+    else seaType=teu>=cbm?'FCL':'LCL';
+  }
+  return {product,year,month,file,forwarder:clean(forwarder),dsv:isDSV(forwarder),seaType,teu,cbm,kg,raw:row};
+}
+async function fetchWorkbook(path,product,year,month){
+  try{const res=await fetch(path,{cache:'no-store'});if(!res.ok)return null;const buf=await res.arrayBuffer();const wb=XLSX.read(buf,{type:'array',cellDates:true});const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{defval:''});FILE_LOG.push({path,rows:rows.length});return rows.map(r=>rowToRecord(r,product,year,month,path));}catch(e){return null}
+}
+async function loadAll(force=false){
+  RAW=[];FILE_LOG=[];$('statusBadge').textContent='Carregando bases';$('loadStatus').innerHTML='Procurando arquivos em <b>data/</b>...';
+  const tasks=[];
+  for(const product of Object.keys(PRODUCTS))for(const year of YEARS)for(const [month] of MONTHS)tasks.push({path:`./data/${product}_${year}_${month}.xlsx`,product,year,month});
+  let done=0, found=0;
+  for(const t of tasks){const recs=await fetchWorkbook(t.path,t.product,t.year,t.month);done++; if(recs){RAW.push(...recs);found++; $('loadStatus').innerHTML=`Lendo bases... ${found} arquivo(s) encontrado(s). Último: <b>${t.path}</b>`}}
+  updateCounters();render();$('statusBadge').textContent=found?`${found} arquivo(s) lido(s)`:'Sem arquivos automáticos';
+  if(!found)$('loadStatus').innerHTML='Nenhum arquivo encontrado automaticamente. Confira se a pasta <b>data</b> existe no mesmo nível do HTML e se os nomes seguem o padrão correto.';
+}
+function updateCounters(){const months=new Set(RAW.map(r=>r.year+'-'+r.month));$('kFiles').textContent=FILE_LOG.length;$('kRows').textContent=RAW.length.toLocaleString('pt-BR');$('kMonths').textContent=months.size;$('kTime').textContent=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});if(FILE_LOG.length){$('loadStatus').innerHTML='<b>Arquivos carregados:</b><br>'+FILE_LOG.map(f=>`✓ ${f.path} — ${f.rows.toLocaleString('pt-BR')} linhas`).join('<br>')}}
+function resetFilters(){$('fProduct').value='all';$('fStart').value='01';$('fEnd').value='12';$('fView').value='both';render()}
+function selectedMonths(){let a=MONTHS.findIndex(x=>x[0]===$('fStart').value),b=MONTHS.findIndex(x=>x[0]===$('fEnd').value);if(a>b)[a,b]=[b,a];return MONTHS.slice(a,b+1)}
+function activeProducts(){const p=$('fProduct').value;return p==='all'?Object.keys(PRODUCTS):[p]}
+function productData(product){const months=selectedMonths().map(x=>x[0]);return RAW.filter(r=>r.product===product && months.includes(r.month))}
+function calc(records,scope,metricType){let d=scope==='dsv'?records.filter(r=>r.dsv):records; if(metricType==='fcl')d=d.filter(r=>r.seaType==='FCL'); if(metricType==='lcl')d=d.filter(r=>r.seaType==='LCL'); const shipments=d.length; const volume=metricType==='fcl'?d.reduce((s,r)=>s+r.teu,0):metricType==='lcl'?d.reduce((s,r)=>s+r.cbm,0):d.reduce((s,r)=>s+r.kg,0); return {shipments,volume}}
+function calcMonth(product,year,month,scope,metricType){return calc(RAW.filter(r=>r.product===product&&r.year===year&&r.month===month),scope,metricType)}
+function makeRows(product,metricType){const prod=PRODUCTS[product], months=selectedMonths();const scopeView=$('fView').value;const scopes=scopeView==='both'?['market','dsv']:[scopeView];const rows=[];scopes.forEach(scope=>{const label=scope==='market'?'MARKET':'DSV + SCHENKER'; if(!(product==='air_export')) rows.push({group:label,kind:'shipments',name:'Shipments',scope}); rows.push({group:label,kind:'volume',name:metricName(prod,metricType),scope});});return rows.map((row,idx)=>{let html=`<tr>${idx===0||row.group!==rows[idx-1].group?`<td class="rowgrp">${row.group}</td>`:`<td class="metric">${row.name}</td>`}`; if(idx===0||row.group!==rows[idx-1].group){html+=`<td class="metric">${row.name}</td>`} else {html+=`<td></td>`} months.forEach(([m,n])=>{const a=calcMonth(product,2025,m,row.scope,metricType);const b=calcMonth(product,2026,m,row.scope,metricType);const av=row.kind==='shipments'?a.shipments:a.volume;const bv=row.kind==='shipments'?b.shipments:b.volume;html+=`<td>${fNum(av,row.kind==='volume'&&metricType==='lcl'?1:0)}</td><td>${fNum(bv,row.kind==='volume'&&metricType==='lcl'?1:0)}</td><td class="growth ${gClass(bv,av)}">${pct(bv,av)}</td>`});const y25=calc(productData(product).filter(r=>r.year===2025),row.scope,metricType);const y26=calc(productData(product).filter(r=>r.year===2026),row.scope,metricType);const yv25=row.kind==='shipments'?y25.shipments:y25.volume,yv26=row.kind==='shipments'?y26.shipments:y26.volume;html+=`<td class="ytd">${fNum(yv25,row.kind==='volume'&&metricType==='lcl'?1:0)}</td><td class="ytd">${fNum(yv26,row.kind==='volume'&&metricType==='lcl'?1:0)}</td><td class="ytd growth ${gClass(yv26,yv25)}">${pct(yv26,yv25)}</td></tr>`;return html}).join('')}
+function section(product,metricType){const prod=PRODUCTS[product];const months=selectedMonths();const cls=prod.kind==='air'?'air':prod.direction==='Export'?'exp':'';let found=productData(product).length;const metricLabel=prod.kind==='sea'?(metricType==='fcl'?'FCL / TEU':'LCL / CBM'):'AIR / KG';let head='<tr><th>Base</th><th>Métrica</th>';months.forEach(([m,n])=>{head+=`<th>${n}-25</th><th>${n}-26</th><th>Growth</th>`});head+='<th>YTD 25</th><th>YTD 26</th><th>Growth YTD</th></tr>';return `<section class="section"><div class="sh"><div><div class="st">${prod.label}<span class="chip ${cls}">${prod.chip}</span><span class="chip">${metricLabel}</span></div><div class="muted">${found.toLocaleString('pt-BR')} linhas carregadas no período selecionado${product==='air_export'?' · Air Export sem cálculo de shipments':''}</div></div></div><div class="table-wrap"><table class="tbl"><thead>${head}</thead><tbody>${makeRows(product,metricType)}</tbody></table></div></section>`}
+function kpis(){const prods=activeProducts();let records=RAW.filter(r=>prods.includes(r.product)&&selectedMonths().map(x=>x[0]).includes(r.month));const market=records,dsv=records.filter(r=>r.dsv);const sea=records.filter(r=>PRODUCTS[r.product].kind==='sea'),air=records.filter(r=>PRODUCTS[r.product].kind==='air');const cards=[['Arquivos carregados',FILE_LOG.length,'bases mensais na pasta data',''],['Market shipments',market.filter(r=>r.product!=='air_export').length,'exceto Air Export','green'],['DSV + Schenker shipments',dsv.filter(r=>r.product!=='air_export').length,'exceto Air Export','amber'],['Market TEU',sea.filter(r=>r.seaType==='FCL').reduce((s,r)=>s+r.teu,0),'FCL','purple'],['Market CBM',sea.filter(r=>r.seaType==='LCL').reduce((s,r)=>s+r.cbm,0),'LCL',''],['Market KG',air.reduce((s,r)=>s+r.kg,0),'Air Import + Export','green']];$('kpis').innerHTML=cards.map(([l,v,s,c])=>`<div class="kpi ${c}"><div class="kl">${l}</div><div class="kv">${typeof v==='number'?fNum(v, l.includes('CBM')?1:0):v}</div><div class="ks">${s}</div></div>`).join('')}
+function render(){kpis();const p=activeProducts();let html='';if(p.includes('sea_import')){html+=section('sea_import','fcl');html+=section('sea_import','lcl')}if(p.includes('sea_export')){html+=section('sea_export','fcl');html+=section('sea_export','lcl')}if(p.includes('air_import'))html+=section('air_import','air');if(p.includes('air_export'))html+=section('air_export','air');$('sections').innerHTML=html}
+$('manualInput').addEventListener('change',async e=>{const files=[...e.target.files];if(!files.length)return;for(const file of files){const m=file.name.match(/(sea_import|sea_export|air_import|air_export)_(2025|2026)_(\d{2})/i);if(!m){alert('Nome fora do padrão: '+file.name);continue}const [,product,year,month]=m;const buf=await file.arrayBuffer();const wb=XLSX.read(buf,{type:'array',cellDates:true});const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{defval:''});FILE_LOG.push({path:file.name,rows:rows.length});RAW.push(...rows.map(r=>rowToRecord(r,product.toLowerCase(),Number(year),month,file.name)))}updateCounters();render();$('statusBadge').textContent=FILE_LOG.length+' arquivo(s) lido(s)'});
+initFilters();loadAll();
+</script>
+</body>
+</html>
